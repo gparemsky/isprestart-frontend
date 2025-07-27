@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISP Network Monitor - Control Panel</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="chart.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <header class="system-header">
+            <h1 class="system-title">ISP Network Monitor</h1>
+            <div class="system-status">
+                <span class="indicator active"></span>
+                <div class="status-info">
+                    <span class="status-text">SERVER ONLINE</span>
+                    <span class="server-ip">192.168.1.50</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="islands-container">
+            <!-- Top Row: 3 Islands -->
+            <div class="top-row">
+                <!-- Primary ISP Island -->
+                <div class="island isp-island">
+                    <div class="island-header">
+                        <div class="isp-title">
+                            <span class="block-label output">PRIMARY ISP</span>
+                            <img src="./img/T_Badge_5G.webp" alt="T-Mobile" class="isp-logo">
+                        </div>
+                        <div class="power-indicator">
+                            <span class="indicator active" id="primary-indicator"></span>
+                            <span class="power-status" id="primary-status">ONLINE</span>
+                        </div>
+                    </div>
+
+                    <div class="isp-info-fields">
+                        <div class="info-field">
+                            <span class="info-field-label">Tech Support:</span>
+                            <span class="info-field-value" id="primary-support-phone">1-877-746-0909</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Account #:</span>
+                            <span class="info-field-value" id="primary-account">987654321</span>
+                        </div>
+                    </div>
+
+                    <div class="isp-stats">
+                        <div class="digital-clock">
+                            <div class="clock-display uptime" id="primary-uptime">168:42:15</div>
+                            <div class="clock-label">Uptime</div>
+                        </div>
+                        <div class="digital-clock">
+                            <div class="clock-display countdown" id="primary-restart-in">--:--:--</div>
+                            <div class="clock-label">Restart In</div>
+                        </div>
+                    </div>
+
+                    <div class="auto-restart-section">
+                        <div class="auto-restart-control">
+                            <label class="control-label">Auto-Restart</label>
+                            <label class="switch">
+                                <input type="checkbox" id="primary-autorestart">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="schedule-info" id="primary-schedule-info">
+                            <span class="schedule-text">Auto-restart is set to restart on the first week of every month on Monday at 12:00:00</span>
+                        </div>
+                    </div>
+
+                    <div class="control-section">
+                        <div class="restart-options">
+                            <div class="radio-group">
+                                <div class="radio-option selected" data-value="now">
+                                    <div class="radio-button"></div>
+                                    <div class="radio-label">Restart Now</div>
+                                </div>
+                                <div class="radio-option" data-value="timed">
+                                    <div class="radio-button"></div>
+                                    <div class="radio-label">Restart For Duration</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-critical restart-btn" id="primary-restart">
+                            <span class="button-label">Primary Control</span>
+                            RESTART ISP
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Secondary ISP Island -->
+                <div class="island isp-island">
+                    <div class="island-header">
+                        <div class="isp-title">
+                            <span class="block-label process">SECONDARY ISP</span>
+                            <img src="./img/Mercury-Broadband-internet.webp" alt="Mercury" class="isp-logo">
+                        </div>
+                        <div class="power-indicator">
+                            <span class="indicator inactive" id="secondary-indicator"></span>
+                            <span class="power-status" id="secondary-status">OFFLINE</span>
+                        </div>
+                    </div>
+
+                    <div class="isp-info-fields">
+                        <div class="info-field">
+                            <span class="info-field-label">Tech Support:</span>
+                            <span class="info-field-value" id="secondary-support-phone">1-855-637-2879</span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-field-label">Account #:</span>
+                            <span class="info-field-value" id="secondary-account">MB-456789012</span>
+                        </div>
+                    </div>
+
+                    <div class="isp-stats">
+                        <div class="digital-clock">
+                            <div class="clock-display downtime" id="secondary-uptime">--:--:--</div>
+                            <div class="clock-label">Downtime</div>
+                        </div>
+                        <div class="digital-clock">
+                            <div class="clock-display countdown" id="secondary-restart-in">--:--:--</div>
+                            <div class="clock-label">Restart In</div>
+                        </div>
+                    </div>
+
+                    <div class="auto-restart-section">
+                        <div class="auto-restart-control">
+                            <label class="control-label">Auto-Restart</label>
+                            <label class="switch">
+                                <input type="checkbox" id="secondary-autorestart">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="schedule-info" id="secondary-schedule-info">
+                            <span class="schedule-text">Auto-restart disabled</span>
+                        </div>
+                    </div>
+
+                    <div class="control-section">
+                        <div class="restart-options">
+                            <div class="radio-group">
+                                <div class="radio-option selected" data-value="now">
+                                    <div class="radio-button"></div>
+                                    <div class="radio-label">Restart Now</div>
+                                </div>
+                                <div class="radio-option" data-value="timed">
+                                    <div class="radio-button"></div>
+                                    <div class="radio-label">Restart For Duration</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-critical restart-btn" id="secondary-restart">
+                            <span class="button-label">Secondary Control</span>
+                            RESTART ISP
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Network Info Island -->
+                <div class="island network-island">
+                    <div class="island-header">
+                        <span class="block-label input">NETWORK STATUS</span>
+                        <div class="signal-indicator network-signal" id="network-signal" title="Network signal strength based on average latency">
+                            <div class="signal-bar"></div>
+                            <div class="signal-bar"></div>
+                            <div class="signal-bar"></div>
+                            <div class="signal-bar"></div>
+                            <div class="signal-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="network-info">
+                        <div class="info-row">
+                            <span class="info-label">Active Connection:</span>
+                            <span class="info-value" id="active-connection">T-Mobile 5G</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Public IP:</span>
+                            <span class="info-value" id="public-ip">192.168.1.100</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Location:</span>
+                            <span class="info-value" id="location">New York, NY</span>
+                        </div>
+                    </div>
+
+                    <div class="latency-averages">
+                        <h3 class="section-title">Latency Averages</h3>
+                        <div class="avg-grid">
+                            <div class="avg-item">
+                                <span class="avg-label">15 min</span>
+                                <span class="avg-value" id="avg-15min">24ms</span>
+                            </div>
+                            <div class="avg-item">
+                                <span class="avg-label">1 hour</span>
+                                <span class="avg-value" id="avg-1hr">26ms</span>
+                            </div>
+                            <div class="avg-item">
+                                <span class="avg-label">4 hour</span>
+                                <span class="avg-value" id="avg-4hr">26ms</span>
+                            </div>
+                            <div class="avg-item">
+                                <span class="avg-label">12 hour</span>
+                                <span class="avg-value" id="avg-12hr">28ms</span>
+                            </div>
+                            <div class="avg-item">
+                                <span class="avg-label">24 hour</span>
+                                <span class="avg-value" id="avg-24hr">25ms</span>
+                            </div>
+                            <div class="avg-item">
+                                <span class="avg-label">7 days</span>
+                                <span class="avg-value" id="avg-7day">27ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="network-statistics">
+                        <div class="stats-header">
+                            <h3 class="section-title">Connection Stability</h3>
+                            <div class="stats-time-selector">
+                                <select class="stats-dropdown" id="stats-timerange">
+                                    <option value="3min">3 min</option>
+                                    <option value="15min" selected>15 min</option>
+                                    <option value="60min">60 min</option>
+                                    <option value="3hr">3 hr</option>
+                                    <option value="12hr">12 hr</option>
+                                    <option value="24hr">24 hr</option>
+                                    <option value="3day">3 days</option>
+                                    <option value="7day">7 days</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label" id="std-dev-label">Std Deviation</span>
+                                <span class="stat-value stable" id="std-dev">±2.3ms</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" id="jitter-label">Jitter</span>
+                                <span class="stat-value moderate" id="jitter">±8.1ms</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" id="packet-loss-label">Packet Loss</span>
+                                <span class="stat-value stable" id="packet-loss">0.02%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label" id="peak-spike-label">Peak Spike</span>
+                                <span class="stat-value unstable" id="peak-spike">487ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: 2 Islands -->
+            <div class="bottom-row">
+                <!-- Chart Island -->
+                <div class="island chart-island">
+                    <div class="island-header">
+                        <span class="block-label critical">LATENCY MONITOR</span>
+                        <div class="chart-controls">
+                            <div class="time-range-selector">
+                                <button class="btn btn-small" data-range="5min">5m</button>
+                                <button class="btn btn-small active" data-range="15min">15m</button>
+                                <button class="btn btn-small" data-range="3hr">3h</button>
+                                <button class="btn btn-small" data-range="12hr">12h</button>
+                                <button class="btn btn-small" data-range="24hr">24h</button>
+                                <button class="btn btn-small" data-range="3day">3d</button>
+                                <button class="btn btn-small" data-range="7day">7d</button>
+                                <button class="btn btn-small" data-range="30day">30d</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="latencyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Action Log Island -->
+                <div class="island log-island">
+                    <div class="island-header">
+                        <span class="block-label process">ACTION LOG</span>
+                    </div>
+                    <div class="log-container">
+                        <div class="log-entry">
+                            <span class="log-timestamp">15:42:13</span>
+                            <span class="log-action success">Primary ISP Auto-Restart Completed</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-timestamp">15:40:08</span>
+                            <span class="log-action warning">Primary ISP Manual Restart Initiated (5 min duration)</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-timestamp">14:23:45</span>
+                            <span class="log-action info">Network latency spike detected (>100ms for 30s)</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-timestamp">12:15:22</span>
+                            <span class="log-action success">Secondary ISP Failover Activated</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-timestamp">11:58:17</span>
+                            <span class="log-action warning">Primary ISP Connection Lost</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-timestamp">09:30:12</span>
+                            <span class="log-action info">System Started - All ISPs Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restart Confirmation Modal -->
+    <div class="modal-overlay" id="restartModal">
+        <div class="modal">
+            <div class="modal-header">Confirm ISP Restart</div>
+            <div class="modal-content">
+                <p id="restart-message">Are you sure you want to restart the Primary ISP now?</p>
+                
+                <div class="timer-inputs" id="duration-inputs" style="display: none;">
+                    <div class="number-input">
+                        <label class="number-input-label">Hours</label>
+                        <input type="number" min="0" max="23" value="0" placeholder="00" id="restart-hours">
+                    </div>
+                    <div class="timer-separator">:</div>
+                    <div class="number-input">
+                        <label class="number-input-label">Minutes</label>
+                        <input type="number" min="1" max="59" value="5" placeholder="05" id="restart-minutes">
+                    </div>
+                </div>
+                
+                <div class="warning-notice">
+                    <strong>Warning:</strong> This action will temporarily disconnect the selected ISP for 3-5 minutes. In the mean time, the router will failover to the alternate ISP within a minute, and revert back to the other when it comes back online. You may notice some intermittent connecting/disconnecting during the next 3-5 minutes, but no longer than 10 minutes.
+                </div>
+                
+                <div class="critical-notice">
+                    <strong>Critical:</strong> This will disrupt internet connections for others on the network, proceed with awareness
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="cancel-restart">Cancel</button>
+                <button class="btn btn-primary" id="confirm-restart">Confirm Restart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-Restart Schedule Modal -->
+    <div class="modal-overlay" id="scheduleModal">
+        <div class="modal schedule-modal">
+            <div class="modal-header">Configure Auto-Restart Schedule</div>
+            <div class="modal-content">
+                <div class="schedule-isp-info">
+                    <span id="schedule-message">Set the automatic restart schedule for the <span id="schedule-isp-name">Primary</span> ISP:</span>
+                    <img id="schedule-isp-logo" src="./img/T_Badge_5G.webp" alt="ISP Logo" class="schedule-isp-logo">
+                </div>
+                
+                <div class="schedule-inputs">
+                    <div class="schedule-column">
+                        <label class="schedule-label">Frequency</label>
+                        <select class="schedule-select" id="schedule-frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="schedule-column" id="day-column" style="display: block;">
+                        <label class="schedule-label">Day</label>
+                        <select class="schedule-select" id="schedule-day">
+                            <option value="monday" selected>Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                            <option value="saturday">Saturday</option>
+                            <option value="sunday">Sunday</option>
+                        </select>
+                    </div>
+                    
+                    <div class="schedule-column">
+                        <label class="schedule-label">Time</label>
+                        <div class="time-inputs">
+                            <select class="time-select" id="schedule-hour">
+                                <option value="00">00</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12" selected>12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+                            <span class="time-separator">:</span>
+                            <select class="time-select" id="schedule-minute">
+                                <option value="00" selected>00</option>
+                                <option value="15">15</option>
+                                <option value="30">30</option>
+                                <option value="45">45</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="schedule-preview">
+                    <span class="preview-label">Schedule Preview:</span>
+                    <span class="preview-text" id="schedule-preview">Weekly restart every Monday at 12:00</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="cancel-schedule">Cancel</button>
+                <button class="btn btn-primary" id="save-schedule">Save Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+</html>
