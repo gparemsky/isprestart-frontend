@@ -491,6 +491,7 @@ body {
 }
 
 .clock-display.uptime { color: var(--accent-green); text-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
+.clock-display.uptime-unknown { color: var(--accent-green); text-shadow: none; }
 .clock-display.downtime { color: var(--accent-red); text-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
 .clock-display.countdown { color: var(--accent-amber); text-shadow: 0 0 8px rgba(251, 191, 36, 0.4); }
 

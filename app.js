@@ -3,21 +3,39 @@
 
 class ISPMonitor {
     constructor() {
+        console.log('[DEBUG] ISPMonitor constructor started');
         this.init();
         this.setupEventListeners();
         this.startClock();
         this.initChart();
         this.loadDemoData();
+        this.loadISPStatesFromBackend();
+        console.log('[DEBUG] ISPMonitor constructor completed');
+        
+        // Add a simple test function to global scope for debugging
+        window.testISPState = () => {
+            console.log('=== SIMPLE DEBUG TEST ===');
+            console.log('Primary online:', this.primaryISP.online);
+            console.log('Secondary online:', this.secondaryISP.online);
+            const primary = document.getElementById('primary-indicator');
+            const secondary = document.getElementById('secondary-indicator');
+            console.log('Primary element class:', primary?.className);
+            console.log('Secondary element class:', secondary?.className);
+        };
     }
 
     init() {
-        console.log('🔧 ISP Monitor Control Panel Initialized');
+        console.log('ISP Monitor Control Panel Initialized');
         
-        // Demo state management
+        // Server connection tracking
+        this.serverConnected = false;
+        this.connectionRetryInterval = null;
+        
+        // Demo state management - will be overridden by backend data
         this.primaryISP = {
             id: 0,
             name: 'T-Mobile 5G',
-            online: true,
+            online: null, // null means not loaded yet
             uptime: Date.now() - (168 * 3600 + 42 * 60 + 15) * 1000,
             restartMode: 'now',
             avgLatency24h: 28, // milliseconds
@@ -28,7 +46,7 @@ class ISPMonitor {
         this.secondaryISP = {
             id: 1,
             name: 'Mercury Broadband',
-            online: false,
+            online: null, // null means not loaded yet
             downtime: Date.now() - (12 * 3600 + 25 * 60 + 33) * 1000,
             restartMode: 'now',
             avgLatency24h: 45, // milliseconds
@@ -172,28 +190,46 @@ class ISPMonitor {
     }
 
     updateStatusIndicators() {
+        // Only update indicators if backend data has been loaded (not null)
+        console.log('[DEBUG updateStatusIndicators] Primary online state:', this.primaryISP.online);
+        console.log('[DEBUG updateStatusIndicators] Secondary online state:', this.secondaryISP.online);
+        
         // Primary ISP
         const primaryIndicator = document.getElementById('primary-indicator');
         const primaryStatus = document.getElementById('primary-status');
         
-        if (this.primaryISP.online) {
-            primaryIndicator.className = 'indicator active';
-            primaryStatus.textContent = 'ONLINE';
+        if (this.primaryISP.online !== null) {
+            console.log('[DEBUG updateStatusIndicators] Updating primary indicator, online:', this.primaryISP.online);
+            if (this.primaryISP.online) {
+                primaryIndicator.className = 'indicator active';
+                primaryStatus.textContent = 'ONLINE';
+                console.log('[DEBUG updateStatusIndicators] Set primary to ONLINE');
+            } else {
+                primaryIndicator.className = 'indicator error';
+                primaryStatus.textContent = 'OFFLINE';
+                console.log('[DEBUG updateStatusIndicators] Set primary to OFFLINE');
+            }
         } else {
-            primaryIndicator.className = 'indicator error';
-            primaryStatus.textContent = 'OFFLINE';
+            console.log('[DEBUG updateStatusIndicators] Skipping primary update - state is null');
         }
         
         // Secondary ISP
         const secondaryIndicator = document.getElementById('secondary-indicator');
         const secondaryStatus = document.getElementById('secondary-status');
         
-        if (this.secondaryISP.online) {
-            secondaryIndicator.className = 'indicator active';
-            secondaryStatus.textContent = 'ONLINE';
+        if (this.secondaryISP.online !== null) {
+            console.log('[DEBUG updateStatusIndicators] Updating secondary indicator, online:', this.secondaryISP.online);
+            if (this.secondaryISP.online) {
+                secondaryIndicator.className = 'indicator active';
+                secondaryStatus.textContent = 'ONLINE';
+                console.log('[DEBUG updateStatusIndicators] Set secondary to ONLINE');
+            } else {
+                secondaryIndicator.className = 'indicator inactive';
+                secondaryStatus.textContent = 'OFFLINE';
+                console.log('[DEBUG updateStatusIndicators] Set secondary to OFFLINE');
+            }
         } else {
-            secondaryIndicator.className = 'indicator inactive';
-            secondaryStatus.textContent = 'OFFLINE';
+            console.log('[DEBUG updateStatusIndicators] Skipping secondary update - state is null');
         }
     }
 
@@ -395,7 +431,7 @@ class ISPMonitor {
             this.addLogEntry(restoreTimestamp, `${ispName} ISP Restart Completed`, 'success');
         }, restoreTime);
         
-        console.log(`🔄 ${ispName} ISP restart initiated:`, { durationMinutes });
+        console.log(`${ispName} ISP restart initiated:`, { durationMinutes });
     }
 
     handleAutoRestartToggle(ispType, enabled) {
@@ -426,7 +462,7 @@ class ISPMonitor {
             }
         }
         
-        console.log(`⚙️ ${ispName} auto-restart ${action.toLowerCase()}`);
+        console.log(`${ispName} auto-restart ${action.toLowerCase()}`);
     }
 
     showScheduleModal(ispType) {
@@ -559,7 +595,7 @@ class ISPMonitor {
         // Update chart data based on range
         this.updateChartForRange(range);
         
-        console.log(`📊 Chart time range changed to: ${range}`);
+        console.log(`Chart time range changed to: ${range}`);
     }
 
     updateChartForRange(range) {
@@ -608,7 +644,7 @@ class ISPMonitor {
         const timestamp = new Date().toLocaleTimeString();
         this.addLogEntry(timestamp, 'Action log cleared by user', 'info');
         
-        console.log('🗑️ Action log cleared');
+        console.log('Action log cleared');
     }
 
     exportLog() {
@@ -630,7 +666,7 @@ class ISPMonitor {
         const timestamp = new Date().toLocaleTimeString();
         this.addLogEntry(timestamp, 'Action log exported to file', 'info');
         
-        console.log('💾 Action log exported');
+        console.log('Action log exported');
     }
 
     initChart() {
@@ -773,7 +809,7 @@ class ISPMonitor {
             }
         });
         
-        console.log('📈 Latency chart initialized');
+        console.log('Latency chart initialized');
         
         // Update chart every 15 seconds with new data point
         setInterval(() => this.updateChart(), 15000);
@@ -833,7 +869,7 @@ class ISPMonitor {
         // Initialize active ISP border
         this.updateActiveISPBorder();
         
-        console.log('📊 Demo data loaded');
+        console.log('Demo data loaded');
     }
 
     updateNetworkStatistics() {
@@ -892,7 +928,7 @@ class ISPMonitor {
         // Update signal bars to reflect new time range
         this.updateNetworkSignalBars();
         
-        console.log(`📊 Connection stability stats updated for ${timeRange}`);
+        console.log(`Connection stability stats updated for ${timeRange}`);
     }
 
     updateStatClass(elementId, value, thresholds) {
@@ -909,9 +945,172 @@ class ISPMonitor {
             element.classList.add('unstable');
         }
     }
+
+    updateServerConnectionStatus(connected) {
+        const indicator = document.getElementById('server-indicator');
+        const status = document.getElementById('server-status');
+        
+        if (!indicator || !status) return;
+        
+        this.serverConnected = connected;
+        
+        if (connected) {
+            indicator.className = 'indicator active';
+            status.textContent = 'SERVER ONLINE';
+            console.log('[SERVER STATUS] Connected to server');
+            
+            // Clear any retry interval
+            if (this.connectionRetryInterval) {
+                clearInterval(this.connectionRetryInterval);
+                this.connectionRetryInterval = null;
+            }
+        } else {
+            indicator.className = 'indicator inactive';
+            status.textContent = 'CONNECTING...';
+            console.log('[SERVER STATUS] Disconnected from server');
+        }
+    }
+
+    startConnectionRetryTimer() {
+        // Only start retry timer if not already running
+        if (this.connectionRetryInterval) return;
+        
+        this.connectionRetryInterval = setInterval(() => {
+            if (!this.serverConnected) {
+                console.log('[SERVER STATUS] Attempting to reconnect...');
+                this.loadISPStatesFromBackend();
+            }
+        }, 5000); // Retry every 5 seconds
+    }
+
+    async loadISPStatesFromBackend() {
+        try {
+            console.log('[DEBUG] Fetching ISP states from backend...');
+            const response = await fetch('http://localhost:8081/api/ping-data?ispstates=true');
+            
+            console.log('[DEBUG] Response status:', response.status);
+            console.log('[DEBUG] Response ok:', response.ok);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('[DEBUG] Raw response data:', data);
+            console.log('[DEBUG] data.primary exists:', !!data.primary);
+            console.log('[DEBUG] data.secondary exists:', !!data.secondary);
+            
+            // Update server connection status to connected
+            this.updateServerConnectionStatus(true);
+            
+            if (data.primary && data.secondary) {
+                console.log('[DEBUG] About to update primary ISP...');
+                this.updateISPStateFromBackend('primary', data.primary);
+                
+                console.log('[DEBUG] About to update secondary ISP...');
+                this.updateISPStateFromBackend('secondary', data.secondary);
+                
+                this.addLogEntry(new Date().toLocaleTimeString(), 'ISP states loaded from backend', 'info');
+                console.log('[DEBUG] ISP states loading completed');
+            } else {
+                console.warn('Unexpected data format received from backend:', data);
+            }
+            
+        } catch (error) {
+            console.error('Failed to load ISP states from backend:', error);
+            
+            // Update server connection status to disconnected
+            this.updateServerConnectionStatus(false);
+            
+            // Start retry timer if not already running
+            this.startConnectionRetryTimer();
+            
+            this.addLogEntry(new Date().toLocaleTimeString(), 'Failed to connect to backend - using demo data', 'warning');
+        }
+    }
+
+    updateISPStateFromBackend(ispType, ispData) {
+        console.log(`[DEBUG] Updating ${ispType} ISP state:`, ispData);
+        console.log(`[DEBUG] ispData.PowerState:`, ispData.PowerState);
+        console.log(`[DEBUG] ispData.powerstate:`, ispData.powerstate);
+        
+        const indicator = document.getElementById(`${ispType}-indicator`);
+        const status = document.getElementById(`${ispType}-status`);
+        
+        console.log(`[DEBUG] Found indicator element:`, indicator);
+        console.log(`[DEBUG] Found status element:`, status);
+        
+        if (!indicator || !status) {
+            console.warn(`Could not find ${ispType} ISP indicator elements`);
+            return;
+        }
+        
+        // Handle both uppercase and lowercase field names from backend
+        const powerState = ispData.PowerState !== undefined ? ispData.PowerState : ispData.powerstate;
+        console.log(`[DEBUG] Final powerState value:`, powerState, typeof powerState);
+        
+        if (powerState) {
+            console.log(`[DEBUG] Setting ${ispType} ISP to ONLINE`);
+            indicator.className = 'indicator active';
+            status.textContent = 'ONLINE';
+            
+            if (ispType === 'primary') {
+                this.primaryISP.online = true;
+                this.primaryISP.uptime = Date.now();
+            } else {
+                this.secondaryISP.online = true;
+                this.secondaryISP.uptime = Date.now();
+            }
+        } else {
+            console.log(`[DEBUG] Setting ${ispType} ISP to OFFLINE`);
+            indicator.className = 'indicator error';
+            status.textContent = 'OFFLINE';
+            
+            if (ispType === 'primary') {
+                this.primaryISP.online = false;
+                this.primaryISP.downtime = Date.now();
+            } else {
+                this.secondaryISP.online = false;
+                this.secondaryISP.downtime = Date.now();
+            }
+        }
+        
+        console.log(`[DEBUG] ${ispType} ISP final state: ${powerState ? 'ONLINE' : 'OFFLINE'}`);
+        console.log(`[DEBUG] Indicator className after update:`, indicator.className);
+        console.log(`[DEBUG] Status textContent after update:`, status.textContent);
+    }
+
+    // Debug helper function - call from browser console
+    debugCurrentState() {
+        console.log('=== DEBUG CURRENT STATE ===');
+        console.log('Primary ISP state:', this.primaryISP);
+        console.log('Secondary ISP state:', this.secondaryISP);
+        
+        const primaryIndicator = document.getElementById('primary-indicator');
+        const primaryStatus = document.getElementById('primary-status');
+        const secondaryIndicator = document.getElementById('secondary-indicator');
+        const secondaryStatus = document.getElementById('secondary-status');
+        
+        console.log('Primary indicator element:', primaryIndicator);
+        console.log('Primary indicator className:', primaryIndicator?.className);
+        console.log('Primary status element:', primaryStatus);
+        console.log('Primary status textContent:', primaryStatus?.textContent);
+        
+        console.log('Secondary indicator element:', secondaryIndicator);
+        console.log('Secondary indicator className:', secondaryIndicator?.className);
+        console.log('Secondary status element:', secondaryStatus);
+        console.log('Secondary status textContent:', secondaryStatus?.textContent);
+        
+        // Force update
+        console.log('Forcing status indicator update...');
+        this.updateStatusIndicators();
+    }
 }
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[DEBUG] DOM loaded, initializing ISP Monitor...');
     window.ispMonitor = new ISPMonitor();
+    console.log('[DEBUG] ISP Monitor initialized:', window.ispMonitor);
+    console.log('[DEBUG] debugCurrentState function available:', typeof window.ispMonitor.debugCurrentState);
 });

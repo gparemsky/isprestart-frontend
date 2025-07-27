@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend2 Backend Integration Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #666;
+            display: inline-block;
+        }
+        .status-indicator.success { background: #00ff88; }
+        .status-indicator.error { background: #ff4444; }
+        .status-indicator.loading { background: #ffaa00; animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .test-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .test-data {
+            font-family: monospace;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 3px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: #ff4444;
+        }
+        .success {
+            color: #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Frontend2 Backend Integration Test</h1>
+        <p>This page tests the connection between Frontend2 and the Go backend.</p>
+        
+        <div class="test-section">
+            <div class="test-header">
+                <span class="status-indicator" id="backend-status"></span>
+                Backend Connection Status
+            </div>
+            <p id="backend-message">Testing connection...</p>
+            <button class="test-button" onclick="testAllEndpoints()">Test All Endpoints</button>
+            <button class="test-button" onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div class="test-grid">
+            <div class="test-item">
+                <div class="test-title">
+                    <span class="status-indicator" id="ping-status"></span>
+                    Ping Data Test
+                </div>
+                <button class="test-button" onclick="testPingData()">Test</button>
+                <div class="test-data" id="ping-data"></div>
+            </div>
+
+            <div class="test-item">
+                <div class="test-title">
+                    <span class="status-indicator" id="isp-status"></span>
+                    ISP States Test
+                </div>
+                <button class="test-button" onclick="testISPStates()">Test</button>
+                <div class="test-data" id="isp-data"></div>
+            </div>
+
+            <div class="test-item">
+                <div class="test-title">
+                    <span class="status-indicator" id="network-status"></span>
+                    Network Status Test
+                </div>
+                <button class="test-button" onclick="testNetworkStatus()">Test</button>
+                <div class="test-data" id="network-data"></div>
+            </div>
+
+            <div class="test-item">
+                <div class="test-title">
+                    <span class="status-indicator" id="logs-status"></span>
+                    Activity Logs Test
+                </div>
+                <button class="test-button" onclick="testLogs()">Test</button>
+                <div class="test-data" id="logs-data"></div>
+            </div>
+
+            <div class="test-item">
+                <div class="test-title">
+                    <span class="status-indicator" id="autorestart-status"></span>
+                    Auto-restart Test
+                </div>
+                <button class="test-button" onclick="testAutorestart()">Test</button>
+                <div class="test-data" id="autorestart-data"></div>
+            </div>
+
+            <div class="test-item">
+                <div class="test-title">
+                    <span class="status-indicator" id="restart-status"></span>
+                    ISP Restart Test
+                </div>
+                <button class="test-button" onclick="testRestartAPI()">Test Restart</button>
+                <div class="test-data" id="restart-data"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">Frontend2 Integration Status</div>
+            <div id="integration-results">
+                <p>Click "Test All Endpoints" to check backend integration.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function setStatus(elementId, status) {
+            const element = document.getElementById(elementId);
+            element.classList.remove('success', 'error', 'loading');
+            element.classList.add(status);
+        }
+
+        function setData(elementId, data) {
+            document.getElementById(elementId).textContent = typeof data === 'object' ? 
+                JSON.stringify(data, null, 2) : data;
+        }
+
+        function updateBackendStatus(success, message) {
+            setStatus('backend-status', success ? 'success' : 'error');
+            document.getElementById('backend-message').innerHTML = success ? 
+                `<span class="success">✅ ${message}</span>` : 
+                `<span class="error">❌ ${message}</span>`;
+        }
+
+        async function testPingData() {
+            setStatus('ping-status', 'loading');
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Rows: 5 })
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                
+                setStatus('ping-status', 'success');
+                setData('ping-data', data);
+                
+                return true;
+            } catch (error) {
+                setStatus('ping-status', 'error');
+                setData('ping-data', `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function testISPStates() {
+            setStatus('isp-status', 'loading');
+            try {
+                const response = await fetch(CONFIG.API_URL + '?ispstates=1');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                
+                setStatus('isp-status', 'success');
+                setData('isp-data', data);
+                return true;
+            } catch (error) {
+                setStatus('isp-status', 'error');
+                setData('isp-data', `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function testNetworkStatus() {
+            setStatus('network-status', 'loading');
+            try {
+                const response = await fetch(CONFIG.API_URL + '?networkstatus=1');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                
+                setStatus('network-status', 'success');
+                setData('network-data', data);
+                return true;
+            } catch (error) {
+                setStatus('network-status', 'error');
+                setData('network-data', `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function testLogs() {
+            setStatus('logs-status', 'loading');
+            try {
+                const response = await fetch(CONFIG.API_URL + '?logs=5');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                
+                setStatus('logs-status', 'success');
+                setData('logs-data', data);
+                return true;
+            } catch (error) {
+                setStatus('logs-status', 'error');
+                setData('logs-data', `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function testAutorestart() {
+            setStatus('autorestart-status', 'loading');
+            try {
+                const response = await fetch(CONFIG.API_URL + '?pagestate=1');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                
+                setStatus('autorestart-status', 'success');
+                setData('autorestart-data', data);
+                return true;
+            } catch (error) {
+                setStatus('autorestart-status', 'error');
+                setData('autorestart-data', `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function testRestartAPI() {
+            setStatus('restart-status', 'loading');
+            // Test with a safe immediate restart request (won't actually restart if implemented properly)
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ restartnow: 1, isp_id: 0 })
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.text();
+                
+                setStatus('restart-status', 'success');
+                setData('restart-data', `Restart API Response: ${data}`);
+                return true;
+            } catch (error) {
+                setStatus('restart-status', 'error');
+                setData('restart-data', `Error: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function testAllEndpoints() {
+            updateBackendStatus(false, 'Testing all endpoints...');
+            
+            const results = await Promise.all([
+                testPingData(),
+                testISPStates(),
+                testNetworkStatus(),
+                testLogs(),
+                testAutorestart()
+            ]);
+            
+            const successCount = results.filter(r => r).length;
+            const totalTests = results.length;
+            
+            if (successCount === totalTests) {
+                updateBackendStatus(true, `All ${totalTests} endpoints working correctly!`);
+                
+                document.getElementById('integration-results').innerHTML = `
+                    <div class="success">
+                        <h3>✅ Backend Integration: SUCCESSFUL</h3>
+                        <p>Frontend2 is ready to use with the backend!</p>
+                        <ul>
+                            <li>✅ Ping data fetching</li>
+                            <li>✅ ISP states monitoring</li>
+                            <li>✅ Network status updates</li>
+                            <li>✅ Activity log retrieval</li>
+                            <li>✅ Auto-restart settings</li>
+                        </ul>
+                        <p><strong>You can now open the main interface:</strong> <a href="index.html" style="color: #00ff88;">index.html</a></p>
+                    </div>
+                `;
+            } else {
+                updateBackendStatus(false, `${successCount}/${totalTests} endpoints working. Check backend connection.`);
+                
+                document.getElementById('integration-results').innerHTML = `
+                    <div class="error">
+                        <h3>❌ Backend Integration: ISSUES DETECTED</h3>
+                        <p>Some endpoints are not responding correctly.</p>
+                        <p><strong>Troubleshooting:</strong></p>
+                        <ul>
+                            <li>Make sure the Go backend is running on port 8081</li>
+                            <li>Check that CONFIG.API_URL points to the correct address</li>
+                            <li>Verify CORS settings in the backend</li>
+                            <li>Check browser console for detailed error messages</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        function clearResults() {
+            ['ping', 'isp', 'network', 'logs', 'autorestart', 'restart'].forEach(test => {
+                setStatus(test + '-status', '');
+                setData(test + '-data', '');
+            });
+            
+            setStatus('backend-status', '');
+            document.getElementById('backend-message').textContent = 'Ready to test...';
+            document.getElementById('integration-results').innerHTML = '<p>Click "Test All Endpoints" to check backend integration.</p>';
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testAllEndpoints, 1000);
+        });
+    </script>
+</body>
+</html>
