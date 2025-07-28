@@ -38,8 +38,7 @@ class ISPMonitor {
         this.serverConnected = false;
         this.connectionRetryInterval = null;
         
-        // Load custom server URL from localStorage if available
-        this.loadCustomServerURL();
+        // Server URL is now handled automatically by CONFIG.initializeConfig()
 
         this.init();
         this.setupEventListeners();
@@ -132,20 +131,6 @@ class ISPMonitor {
         }
     }
 
-    loadCustomServerURL() {
-        const customURL = localStorage.getItem('customServerURL');
-        if (customURL) {
-            // Validate the stored URL
-            try {
-                new URL(customURL);
-                CONFIG.API_URL = customURL;
-                console.log(`[CONFIG] Loaded custom server URL from localStorage: ${customURL}`);
-            } catch (error) {
-                console.warn('[CONFIG] Invalid custom server URL in localStorage, removing:', error);
-                localStorage.removeItem('customServerURL');
-            }
-        }
-    }
 
     formatUptime(seconds) {
         if (seconds < 0) seconds = 0;
@@ -203,7 +188,7 @@ class ISPMonitor {
 
         setInterval(() => {
             this.fetchNetworkStatus();
-        }, 45000);
+        }, 15000);
 
         setInterval(() => {
             if (!this.pauseAutorestartPolling) {

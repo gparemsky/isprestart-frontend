@@ -68,8 +68,12 @@ Object.assign(ISPMonitor.prototype, {
         document.getElementById('schedule-hour')?.addEventListener('change', () => this.updateSchedulePreview());
         document.getElementById('schedule-minute')?.addEventListener('change', () => this.updateSchedulePreview());
 
-        // Server configuration modal
-        document.getElementById('server-ip')?.addEventListener('click', () => this.showServerModal());
+        // Server IP inline editing
+        document.getElementById('server-ip')?.addEventListener('click', () => this.showServerIPInput());
+        document.getElementById('server-ip-input')?.addEventListener('blur', () => this.hideServerIPInput());
+        document.getElementById('server-ip-input')?.addEventListener('keydown', (e) => this.handleServerIPKeydown(e));
+        
+        // Server configuration modal (fallback/advanced options)
         document.getElementById('cancel-server')?.addEventListener('click', () => this.hideServerModal());
         document.getElementById('reset-server')?.addEventListener('click', () => this.resetServerURL());
         document.getElementById('save-server')?.addEventListener('click', () => this.saveServerURL());
@@ -464,26 +468,76 @@ Object.assign(ISPMonitor.prototype, {
 
     updateServerIPDisplay() {
         try {
-            // Parse the backend URL to extract the hostname/IP and port
-            const url = new URL(CONFIG.API_URL);
+            // Use the CONFIG method to get current server IP
+            const displayText = CONFIG.getServerIP();
             const serverIP = document.querySelector('.server-ip');
+            const serverIPInput = document.querySelector('.server-ip-input');
             
             if (serverIP) {
-                // Display hostname:port or just hostname if using default ports
-                let displayText = url.hostname;
-                
-                // Add port if it's not the default for the protocol
-                if ((url.protocol === 'http:' && url.port && url.port !== '80') ||
-                    (url.protocol === 'https:' && url.port && url.port !== '443')) {
-                    displayText += ':' + url.port;
-                }
-                
                 serverIP.textContent = displayText;
                 console.log(`[UI UPDATE] Server IP display updated to: ${displayText}`);
             }
+            
+            if (serverIPInput) {
+                serverIPInput.value = displayText;
+                serverIPInput.placeholder = displayText;
+            }
         } catch (error) {
-            console.error('[UI ERROR] Failed to parse backend URL:', error);
+            console.error('[UI ERROR] Failed to update server IP display:', error);
             // Keep the default value if parsing fails
+        }
+    },
+
+    showServerIPInput() {
+        const serverIP = document.getElementById('server-ip');
+        const serverIPInput = document.getElementById('server-ip-input');
+        
+        if (serverIP && serverIPInput) {
+            // Hide the span and show the input
+            serverIP.style.display = 'none';
+            serverIPInput.style.display = 'inline-block';
+            serverIPInput.value = CONFIG.getServerIP();
+            serverIPInput.focus();
+            serverIPInput.select();
+            
+            console.log('[UI] Switched to IP input mode');
+        }
+    },
+
+    hideServerIPInput(saveChanges = false) {
+        const serverIP = document.getElementById('server-ip');
+        const serverIPInput = document.getElementById('server-ip-input');
+        
+        if (serverIP && serverIPInput) {
+            // If saving changes, apply the new IP
+            if (saveChanges && serverIPInput.value.trim() !== '') {
+                const newIP = serverIPInput.value.trim();
+                if (CONFIG.setServerIP(newIP)) {
+                    // Update display and reconnect
+                    this.updateServerIPDisplay();
+                    this.updateServerConnectionStatus(false);
+                    setTimeout(() => this.fetchISPStates(), 500);
+                    console.log('[UI] Applied new server IP:', newIP);
+                } else {
+                    console.error('[UI] Failed to set new server IP:', newIP);
+                }
+            }
+            
+            // Hide input and show span
+            serverIPInput.style.display = 'none';
+            serverIP.style.display = 'inline-block';
+            
+            console.log('[UI] Switched back to IP display mode');
+        }
+    },
+
+    handleServerIPKeydown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            this.hideServerIPInput(true); // Save changes
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            this.hideServerIPInput(false); // Cancel changes
         }
     },
 

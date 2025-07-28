@@ -982,7 +982,7 @@ ISPMonitor.prototype.sendScheduleToBackend = async function(frequency, day, hour
         
         console.log('[DEBUG] Final payload being sent to backend:', payload);
         
-        const response = await fetch('http://localhost:8081/api/ping-data', {
+        const response = await fetch(CONFIG.API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1125,7 +1125,7 @@ ISPMonitor.prototype.updateSignalBars = function(averageLatency) {
 ISPMonitor.prototype.refreshAutoRestartDisplay = async function(ispType, retryCount = 3) {
     try {
         console.log(`[DEBUG] Refreshing ${ispType} autorestart display... (attempt ${4 - retryCount})`);
-        const response = await fetch('http://localhost:8081/api/ping-data?pagestate=true');
+        const response = await fetch(CONFIG.API_URL + '?pagestate=true');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
