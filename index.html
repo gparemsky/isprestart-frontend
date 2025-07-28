@@ -17,7 +17,7 @@
                 <span class="indicator inactive" id="server-indicator"></span>
                 <div class="status-info">
                     <span class="status-text" id="server-status">CONNECTING...</span>
-                    <span class="server-ip">192.168.1.50</span>
+                    <span class="server-ip clickable" id="server-ip" title="Click to change server address">192.168.1.50</span>
                 </div>
             </div>
         </header>
@@ -291,30 +291,7 @@
                         <span class="block-label process">ACTION LOG</span>
                     </div>
                     <div class="log-container">
-                        <div class="log-entry">
-                            <span class="log-timestamp">15:42:13</span>
-                            <span class="log-action success">Primary ISP Auto-Restart Completed</span>
-                        </div>
-                        <div class="log-entry">
-                            <span class="log-timestamp">15:40:08</span>
-                            <span class="log-action warning">Primary ISP Manual Restart Initiated (5 min duration)</span>
-                        </div>
-                        <div class="log-entry">
-                            <span class="log-timestamp">14:23:45</span>
-                            <span class="log-action info">Network latency spike detected (>100ms for 30s)</span>
-                        </div>
-                        <div class="log-entry">
-                            <span class="log-timestamp">12:15:22</span>
-                            <span class="log-action success">Secondary ISP Failover Activated</span>
-                        </div>
-                        <div class="log-entry">
-                            <span class="log-timestamp">11:58:17</span>
-                            <span class="log-action warning">Primary ISP Connection Lost</span>
-                        </div>
-                        <div class="log-entry">
-                            <span class="log-timestamp">09:30:12</span>
-                            <span class="log-action info">System Started - All ISPs Online</span>
-                        </div>
+                        <!-- Action log entries will be populated dynamically from backend -->
                     </div>
                 </div>
             </div>
@@ -375,7 +352,7 @@
                         </select>
                     </div>
                     
-                    <div class="schedule-column" id="day-column" style="display: block;">
+                    <div class="schedule-column" id="day-column">
                         <label class="schedule-label">Day</label>
                         <select class="schedule-select" id="schedule-day">
                             <option value="monday" selected>Monday</option>
@@ -440,6 +417,42 @@
         </div>
     </div>
 
-    <script src="./app_backend.js"></script>
+    <!-- Server Address Configuration Modal -->
+    <div class="modal-overlay" id="serverModal">
+        <div class="modal">
+            <div class="modal-header">Configure Backend Server</div>
+            <div class="modal-content">
+                <p>Enter the backend server address for debugging or custom deployment:</p>
+                
+                <div class="server-input-section">
+                    <label class="server-input-label">Server URL:</label>
+                    <input type="text" id="server-url-input" class="server-url-input" placeholder="http://192.168.1.9:8081" />
+                </div>
+                
+                <div class="server-info">
+                    <div class="info-note">
+                        <strong>Note:</strong> This setting is stored locally in your browser for debugging purposes.
+                    </div>
+                    <div class="info-examples">
+                        <strong>Examples:</strong>
+                        <ul>
+                            <li><code>http://127.0.0.1:8081</code> - Local development</li>
+                            <li><code>http://192.168.1.9:8081</code> - Network server</li>
+                            <li><code>https://myserver.com:8081</code> - Remote server</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" id="cancel-server">Cancel</button>
+                <button class="btn" id="reset-server">Reset to Default</button>
+                <button class="btn btn-primary" id="save-server">Save & Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./isp-monitor-core.js"></script>
+    <script src="./isp-monitor-api.js"></script>
+    <script src="./isp-monitor-ui.js"></script>
 </body>
 </html>

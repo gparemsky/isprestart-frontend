@@ -99,6 +99,16 @@ body {
     color: var(--text-muted);
 }
 
+.server-ip.clickable {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.server-ip.clickable:hover {
+    color: var(--accent-blue);
+    text-decoration: underline;
+}
+
 /* Islands Container */
 .islands-container {
     width: 100%;
@@ -183,9 +193,9 @@ body {
 }
 
 .isp-logo {
-    width: 80px;
+    width: 120px;
     height: auto;
-    max-height: 40px;
+    max-height: 60px;
     object-fit: contain;
 }
 
@@ -341,6 +351,15 @@ body {
     color: var(--accent-green);
 }
 
+.avg-value.insufficient {
+    color: #666666;
+    cursor: help;
+}
+
+.avg-value.sufficient {
+    color: var(--accent-green);
+}
+
 /* Chart Island */
 .chart-island {
     min-height: 350px;
@@ -421,6 +440,10 @@ body {
 .log-action.warning { color: var(--accent-amber); }
 .log-action.info { color: var(--accent-cyan); }
 .log-action.error { color: var(--accent-red); }
+.log-action.restart { color: var(--accent-amber); font-weight: 500; }
+.log-action.schedule { color: #fbbf24; font-weight: 500; }
+.log-action.system { color: var(--text-secondary); font-style: italic; }
+.log-action.user-action { color: var(--accent-blue); font-weight: 500; }
 
 /* Component Imports from Style Guide */
 
@@ -492,8 +515,10 @@ body {
 
 .clock-display.uptime { color: var(--accent-green); text-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
 .clock-display.uptime-unknown { color: var(--accent-green); text-shadow: none; }
+.clock-display.uptime-stale { color: #666666; text-shadow: none; }
 .clock-display.downtime { color: var(--accent-red); text-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
 .clock-display.countdown { color: var(--accent-amber); text-shadow: 0 0 8px rgba(251, 191, 36, 0.4); }
+.clock-display.countdown-stale { color: #666666; text-shadow: none; }
 
 .clock-label {
     font-size: 0.7rem;
@@ -879,11 +904,6 @@ input:checked + .slider:before {
     gap: 0.5rem;
 }
 
-#day-column {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
 
 .schedule-label {
     font-size: 0.9rem;
@@ -1166,6 +1186,7 @@ input:checked + .slider:before {
 .stat-value.stable { color: var(--accent-green); }
 .stat-value.moderate { color: var(--accent-amber); }
 .stat-value.unstable { color: var(--accent-red); }
+.stat-value.unknown { color: var(--text-muted); }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
@@ -1225,4 +1246,70 @@ input:checked + .slider:before {
     .isp-info-fields {
         margin: 0.5rem 0;
     }
+}
+
+/* Server Configuration Modal Styles */
+.server-input-section {
+    margin: 1.5rem 0;
+}
+
+.server-input-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.server-url-input {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.server-url-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.server-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    border-left: 3px solid var(--accent-blue);
+}
+
+.info-note {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.info-examples {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.info-examples ul {
+    margin: 0.5rem 0 0 1rem;
+    padding: 0;
+}
+
+.info-examples li {
+    margin: 0.25rem 0;
+}
+
+.info-examples code {
+    background: var(--bg-primary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 2px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    color: var(--accent-cyan);
 }
